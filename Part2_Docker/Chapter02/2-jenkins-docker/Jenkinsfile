@@ -1,7 +1,5 @@
-// define = 변수선언
-
+// define = Jenkinsfile 내 변수선언
 // working directory 설정
-
 def mainDir="Part2_Docker/Chapter02/2-jenkins-docker"
 // aws ecr에 로그인하게 해주는 helper 이름
 def ecrLoginHelper="docker-credential-ecr-login"
