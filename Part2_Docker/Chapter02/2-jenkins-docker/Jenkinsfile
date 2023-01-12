@@ -60,7 +60,7 @@ pipeline {
                       docker stop ${contName}; \
                       docker rm -f ${contName}; \
                       docker run --name jenkins_test -d -p 80:8080 -t ${ecrUrl}/${repository}:${currentBuild.number}; \
-                      docker rmi -f ${ecrUrl}/${repository};'"x
+                      docker rmi -f ${ecrUrl}/${repository};'"
                 }
             }
         }
