@@ -30,11 +30,12 @@ tasks.withType(JavaCompile) {
 }
 
 jib {
+    // 'to'는 jenkinsfile에서 명시할 것이라 적지 않음
     from {
         image = 'adoptopenjdk/openjdk11:alpine-jre'
     }
     container {
-
+        // jar파일 대신 main class를 입력
         mainClass = 'com.test.StartApplication'
         jvmFlags = ['-Xms512m', '-Xmx512m', '-Xdebug', '-XshowSettings:vm', '-XX:+UnlockExperimentalVMOptions', '-XX:+UseContainerSupport']
         ports = ['8080']
@@ -46,8 +47,10 @@ jib {
         format = 'Docker'
     }
     extraDirectories {
+        // from의 jar파일을 참조해 빌드
         paths {
             path {
+                // file경로 = jar파일 경로
                 from = file('build/libs')
             }
         }

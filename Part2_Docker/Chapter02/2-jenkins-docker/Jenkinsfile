@@ -1,11 +1,21 @@
-def mainDir="Chapter02/2-jenkins-docker"
+// define = 변수선언
+
+// working directory 설정
+
+def mainDir="Part2_Docker/Chapter02/2-jenkins-docker"
+// aws ecr에 로그인하게 해주는 helper 이름
 def ecrLoginHelper="docker-credential-ecr-login"
-def region="<AWS Region>"
-def ecrUrl="<AWS ECR URL>"
-def repository="<Image Repository Name>"
-def deployHost="<Deploy VM Private IP>"
+// AWS region
+def region="ap-northeast-1"
+// AWS ECR url
+def ecrUrl="052185332648.dkr.ecr.ap-northeast-1.amazonaws.com"
+// ECR repository name
+def repository="test"
+// deploy VM, jenkins VM 이 동일한 VPC내에 있으므로 private통신이 가능해 private ip 입력
+def deployHost="172.32.16.106"
 
 pipeline {
+    // jenkins에서 접근할 수 있도록 any로 설정
     agent any
 
     stages {
@@ -15,6 +25,7 @@ pipeline {
             }
         }
         stage('Build Codes by Gradle') {
+//         main dir로 이동해 빌드실행
             steps {
                 sh """
                 cd ${mainDir}
@@ -23,6 +34,9 @@ pipeline {
             }
         }
         stage('Build Docker Image by Jib & Push to AWS ECR Repository') {
+            // aws에 로그인(크리덴셜 헬퍼를 다운로드 받아 사용)
+            // jib을 이용해 이미지 빌드 후 푸시
+            // jib설정 시 입력하지 않은 to부분 여기서 설정
             steps {
                 withAWS(region:"${region}", credentials:"aws-key") {
                     ecrLogin()
@@ -37,6 +51,8 @@ pipeline {
             }
         }
         stage('Deploy to AWS EC2 VM'){
+            // 배포서버에 접속하기 위해 pem키 설정
+            // private ip로 ssh 접속, port를 80 port로 바인딩, push한 이미지 사용해 docker run
             steps{
                 sshagent(credentials : ["deploy-key"]) {
                     sh "ssh -o StrictHostKeyChecking=no ubuntu@${deployHost} \
