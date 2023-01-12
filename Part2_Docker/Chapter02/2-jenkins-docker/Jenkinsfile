@@ -11,6 +11,8 @@ def ecrUrl="052185332648.dkr.ecr.ap-northeast-1.amazonaws.com"
 def repository="test"
 // deploy VM, jenkins VM 이 동일한 VPC내에 있으므로 private통신이 가능해 private ip 입력
 def deployHost="172.32.16.106"
+// Container name
+def contName="jenkins_test"
 
 pipeline {
     // jenkins에서 접근할 수 있도록 any로 설정
@@ -55,7 +57,10 @@ pipeline {
                 sshagent(credentials : ["deploy-key"]) {
                     sh "ssh -o StrictHostKeyChecking=no ubuntu@${deployHost} \
                      'aws ecr get-login-password --region ${region} | docker login --username AWS --password-stdin ${ecrUrl}/${repository}; \
-                      docker run -d -p 80:8080 -t ${ecrUrl}/${repository}:${currentBuild.number};'"
+                      docker stop ${contName}; \
+                      docker rm -f ${contName}; \
+                      docker run --name jenkins_test -d -p 80:8080 -t ${ecrUrl}/${repository}:${currentBuild.number}; \
+                      docker rmi -f ${ecrUrl}/${repository};'"x
                 }
             }
         }
